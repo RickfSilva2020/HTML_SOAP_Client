@@ -1,0 +1,12 @@
+Para Rodar localmente basta executar o arquivo index localmente.
+
+Pata rodar via web Usando Python HTTP Server com CORS desativado:
+
+Abra o terminal e navegue até o diretório onde está o seu arquivo HTML. Em seguida, execute o seguinte comando para iniciar um servidor HTTP local:
+
+bash
+Copiar código
+python -m http.server --bind 127.0.0.1 8000 --directory .
+Este comando inicia um servidor HTTP na porta 8000 do localhost (127.0.0.1) e serve arquivos do diretório atual (.). O CORS será desativado neste servidor local.
+
+ex. copiar http://127.0.0.1:5500/index.html e colar no browser depois de rodar o código no CMD.

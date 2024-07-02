@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente SOAP </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 300px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="button"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            width: 80%;
+            cursor: pointer;
+        }
+
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Cliente SOAP</h2>
+        <input type="text" id="num1" placeholder="Digite o promeiro número">
+        <input type="text" id="num2" placeholder="Digite o segundo número">
+        <input type="button" value="Adição" onclick="callSoapService('adicionar')">
+        <input type="button" value="Subtração" onclick="callSoapService('subtrair')">
+        <input type="button" value="Multiplicação" onclick="callSoapService('multiplicar')">
+        <input type="button" value="Divisão" onclick="callSoapService('dividir')">
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        function callSoapService(operation) {
+            const num1 = document.getElementById('num1').value;
+            const num2 = document.getElementById('num2').value;
+            const soapRequest = `
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="calculadora.soap">
+                    <soapenv:Header/>
+                    <soapenv:Body>
+                        <tns:${operation}>
+                            <tns:num1>${num1}</tns:num1>
+                            <tns:num2>${num2}</tns:num2>
+                        </tns:${operation}>
+                    </soapenv:Body>
+                </soapenv:Envelope>
+            `;
+
+            console.log("SOAP Request:", soapRequest);
+
+            fetch('http://127.0.0.1:8000/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/xml; charset=utf-8'
+                },
+                body: soapRequest
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    console.log("SOAP Response:", data); // Log the raw response
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(data, "text/xml");
+                    const resultNode = xmlDoc.getElementsByTagName(`tns:${operation}Result`)[0];
+                    const result = resultNode ? resultNode.textContent : "No result found";
+                    document.getElementById('result').innerText = `Result: ${result}`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('result').innerText = `Error: ${error.message}`;
+                });
+        }
+    </script>
+
+
+</body>
+
+</html>
